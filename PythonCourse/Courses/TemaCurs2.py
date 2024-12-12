@@ -1,0 +1,2 @@
+temperatura, unitate_in, unitate_out = float(input("Introduceți temperatura: ")), input("Unitatea de intrare (C, F, K): ").upper(), input("Unitatea de ieșire (C, F, K): ").upper()
+print({"C-F": (temperatura*9/5+32), "C-K": (temperatura+273.15), "F-C": ((temperatura-32)*5/9), "F-K": ((temperatura-32)*5/9+273.15), "K-C": (temperatura-273.15), "K-F": ((temperatura-273.15)*9/5+32)}.get(f"{unitate_in}-{unitate_out}", "Conversie invalida"))
