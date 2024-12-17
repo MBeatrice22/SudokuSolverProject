@@ -18,7 +18,7 @@ def inverted_index(documents):
 
     return index
 
-# Exemplu de utilizare
+#exemple de documente
 documents = [
     "Acesta este primul document.",
     "Al doilea document conține cuvinte noi.",

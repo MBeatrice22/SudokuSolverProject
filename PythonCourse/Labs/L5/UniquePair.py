@@ -18,5 +18,4 @@ target = int(input("Introduceti valoarea tinta: "))
 # Obținem perechile unice
 result = unique_pair_sum(nums, target)
 
-# Afișăm rezultatul
 print("Perechile unice care adunate dau valoarea tinta:", result)
