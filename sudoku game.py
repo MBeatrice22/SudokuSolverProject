@@ -1,6 +1,5 @@
 import random
 
-
 def is_valid(board, row, col, num):
     # Verifică dacă numărul este valid pe linia respectivă
     for i in range(9):
@@ -22,7 +21,6 @@ def is_valid(board, row, col, num):
 
     return True
 
-
 def solve(board):
     for row in range(9):
         for col in range(9):
@@ -36,7 +34,6 @@ def solve(board):
                 return False  # Nu există o soluție validă
     return True  # Sudoku rezolvat
 
-
 def print_board(board):
     for i in range(9):
         # Se adaugă linii de delimitare la fiecare 3 rânduri și coloane
@@ -48,7 +45,6 @@ def print_board(board):
                 print("|", end=" ")  # Linie verticală pentru fiecare 3 coloană
             print(str(board[i][j]) if board[i][j] != 0 else '.', end=" ")  # Afișează puncte pentru celulele goale
         print()
-
 
 def generate_sudoku():
     # Creăm un tabel 9x9 cu toate valorile 0 (necompletat)
@@ -63,7 +59,6 @@ def generate_sudoku():
             board[row][col] = num
 
     return board
-
 
 # Generăm un Sudoku
 board = generate_sudoku()
