@@ -1,7 +1,6 @@
 from collections import Counter
 import string
 
-
 def word_frequency(text):
     # Transformă textul în litere mici și îndepărtează semnele de punctuație
     text = text.lower().translate(str.maketrans('', '', string.punctuation))
@@ -9,7 +8,6 @@ def word_frequency(text):
     # Împarte textul în cuvinte și numără frecvențele folosind Counter
     words = text.split()
     return dict(Counter(words))
-
 
 # Citirea textului de la tastatură
 text = input("Introduceti un text: ")
