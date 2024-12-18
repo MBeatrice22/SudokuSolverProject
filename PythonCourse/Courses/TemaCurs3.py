@@ -9,7 +9,7 @@ for produs, cantitate_vanduta in vanzari:
         venit_total += preturi_produse[produs] * cantitate_vanduta #Calculăm venitul din vânzare pentru produsul curent
         stocuri_raman[produs] -= cantitate_vanduta #Actualizăm stocul
 #Identificăm produsele ce trebuie realimentate
-produse_realimentare = {produs for produs, cantitate in stocuri_raman.items() if cantitate < 5}
+produse_realimentare = {produs for produs, cantitate in stocuri_raman.items() if cantitate <= 5}
 print(f"Venit total: {venit_total} RON") #Generarea raportului
 print("Stocuri rămase:")
 for produs, stoc in stocuri_raman.items():
