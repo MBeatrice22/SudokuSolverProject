@@ -2,110 +2,136 @@ import tkinter as tk
 from tkinter import messagebox
 
 
-# Algoritmul de backtracking pentru rezolvarea Sudoku-ului
-def is_valid(board, row, col, num):
-    # Verifica linia
+# Funcție pentru a verifica dacă este posibil să pui un număr într-o celulă
+def este_valid(sudoku, row, col, num):
+    # Verifică pe rând
     for i in range(9):
-        if board[row][i] == num:
+        if sudoku[row][i] == num:
             return False
 
-    # Verifica coloana
+    # Verifică pe coloană
     for i in range(9):
-        if board[i][col] == num:
+        if sudoku[i][col] == num:
             return False
 
-    # Verifica sub-grila 3x3
-    start_row = (row // 3) * 3
-    start_col = (col // 3) * 3
+    # Verifică în sub-grila 3x3
+    start_row, start_col = (row // 3) * 3, (col // 3) * 3
     for i in range(3):
         for j in range(3):
-            if board[start_row + i][start_col + j] == num:
+            if sudoku[start_row + i][start_col + j] == num:
                 return False
 
     return True
 
 
-def solve(board):
+# Funcție pentru a rezolva Sudoku-ul folosind backtracking
+def rezolva_sudoku(sudoku):
     for row in range(9):
         for col in range(9):
-            if board[row][col] == 0:
+            if sudoku[row][col] == 0:
                 for num in range(1, 10):
-                    if is_valid(board, row, col, num):
-                        board[row][col] = num
-                        if solve(board):
+                    if este_valid(sudoku, row, col, num):
+                        sudoku[row][col] = num
+                        if rezolva_sudoku(sudoku):
                             return True
-                        board[row][col] = 0
+                        sudoku[row][col] = 0
                 return False
     return True
 
 
-# Crearea interfeței grafice
-class SudokuGUI:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Sudoku")
-
-        self.board = [[0 for _ in range(9)] for _ in range(9)]
-        self.buttons = [[None for _ in range(9)] for _ in range(9)]
-
-        self.create_grid()
-
-    def create_grid(self):
+# Funcție pentru a actualiza Sudoku-ul cu valorile introduse de utilizator
+def actualizeaza_sudoku():
+    global sudoku
+    try:
         for row in range(9):
             for col in range(9):
-                self.buttons[row][col] = tk.Entry(self.root, width=5, font=('Arial', 18), borderwidth=2, relief="solid",
-                                                  justify='center')
-                self.buttons[row][col].grid(row=row, column=col, padx=5, pady=5)
-                self.buttons[row][col].bind("<Button-1>", lambda event, r=row, c=col: self.on_click(r, c))
-
-    def on_click(self, row, col):
-        def set_number(event):
-            try:
-                num = int(event.widget.get())
-                if 1 <= num <= 9 and is_valid(self.board, row, col, num):
-                    self.board[row][col] = num
-                    self.buttons[row][col].delete(0, tk.END)
-                    self.buttons[row][col].insert(0, str(num))
+                val = input_fields[row][col].get()
+                if val:
+                    sudoku[row][col] = int(val)
                 else:
-                    messagebox.showerror("Invalid", "Numărul nu este valid!")
-            except ValueError:
-                pass
+                    sudoku[row][col] = 0
+    except ValueError:
+        messagebox.showerror("Eroare", "Introduceți doar cifre între 1 și 9.")
+        return
 
-        self.buttons[row][col].bind("<Return>", set_number)
-
-    def solve_sudoku(self):
-        # Convertește valoarea din interfață în matrice
-        for row in range(9):
-            for col in range(9):
-                val = self.buttons[row][col].get()
-                if val != "":
-                    self.board[row][col] = int(val)
-
-        if solve(self.board):
-            for row in range(9):
-                for col in range(9):
-                    self.buttons[row][col].delete(0, tk.END)
-                    if self.board[row][col] != 0:
-                        self.buttons[row][col].insert(0, str(self.board[row][col]))
-        else:
-            messagebox.showinfo("Eroare", "Nu se poate rezolva acest Sudoku!")
-
-    def reset(self):
-        for row in range(9):
-            for col in range(9):
-                self.board[row][col] = 0
-                self.buttons[row][col].delete(0, tk.END)
+    # Rezolvă Sudoku-ul
+    if rezolva_sudoku(sudoku):
+        actualizeaza_campuri()
+    else:
+        messagebox.showerror("Eroare", "Sudoku-ul nu are soluție!")
 
 
-# Crează fereastra principală
+# Funcție pentru a actualiza câmpurile din GUI cu soluția Sudoku-ului
+def actualizeaza_campuri():
+    for row in range(9):
+        for col in range(9):
+            if sudoku[row][col] != 0:
+                input_fields[row][col].delete(0, tk.END)
+                input_fields[row][col].insert(0, str(sudoku[row][col]))
+            else:
+                input_fields[row][col].delete(0, tk.END)
+
+
+# Crearea ferestrei principale
 root = tk.Tk()
-sudoku_gui = SudokuGUI(root)
+root.title("Sudoku")
 
-# Butoane pentru a rezolva și a reseta Sudoku-ul
-solve_button = tk.Button(root, text="Rezolvă Sudoku", font=('Arial', 18), command=sudoku_gui.solve_sudoku)
-solve_button.grid(row=9, column=0, columnspan=3, pady=10)
+# Sudoku-ul inițial (poți schimba acest puzzle cu altul)
+sudoku = [
+    [5, 3, 0, 0, 7, 0, 0, 0, 0],
+    [6, 0, 0, 1, 9, 5, 0, 0, 0],
+    [0, 9, 8, 0, 0, 0, 0, 6, 0],
+    [8, 0, 0, 0, 6, 0, 0, 0, 3],
+    [4, 0, 0, 8, 0, 3, 0, 0, 1],
+    [7, 0, 0, 0, 2, 0, 0, 0, 6],
+    [0, 6, 0, 0, 0, 0, 2, 8, 0],
+    [0, 0, 0, 4, 1, 9, 0, 0, 5],
+    [0, 0, 0, 0, 8, 0, 0, 7, 9]
+]
 
-reset_button = tk.Button(root, text="Resetează", font=('Arial', 18), command=sudoku_gui.reset)
-reset_button.grid(row=9, column=3, columnspan=3, pady=10)
+# Crearea câmpurilor de input pentru Sudoku
+input_fields = [[None for _ in range(9)] for _ in range(9)]
 
+# Definirea culorilor pentru sub-grilele 3x3
+sub_grid_colors = [
+    ['lightblue', 'lightblue', 'lightblue', 'lightgreen', 'lightgreen', 'lightgreen', 'lightyellow', 'lightyellow',
+     'lightyellow'],
+    ['lightblue', 'lightblue', 'lightblue', 'lightgreen', 'lightgreen', 'lightgreen', 'lightyellow', 'lightyellow',
+     'lightyellow'],
+    ['lightblue', 'lightblue', 'lightblue', 'lightgreen', 'lightgreen', 'lightgreen', 'lightyellow', 'lightyellow',
+     'lightyellow'],
+    ['lightpink', 'lightpink', 'lightpink', 'lightgray', 'lightgray', 'lightgray', 'lightcyan', 'lightcyan',
+     'lightcyan'],
+    ['lightpink', 'lightpink', 'lightpink', 'lightgray', 'lightgray', 'lightgray', 'lightcyan', 'lightcyan',
+     'lightcyan'],
+    ['lightpink', 'lightpink', 'lightpink', 'lightgray', 'lightgray', 'lightgray', 'lightcyan', 'lightcyan',
+     'lightcyan'],
+    ['lightcoral', 'lightcoral', 'lightcoral', 'lightblue', 'lightblue', 'lightblue', 'lightgreen', 'lightgreen',
+     'lightgreen'],
+    ['lightcoral', 'lightcoral', 'lightcoral', 'lightblue', 'lightblue', 'lightblue', 'lightgreen', 'lightgreen',
+     'lightgreen'],
+    ['lightcoral', 'lightcoral', 'lightcoral', 'lightblue', 'lightblue', 'lightblue', 'lightgreen', 'lightgreen',
+     'lightgreen']
+]
+
+# Crearea câmpurilor de input și setarea bordurilor și culorilor pentru sub-grilele de 3x3
+for row in range(9):
+    for col in range(9):
+        input_fields[row][col] = tk.Entry(root, width=5, font=("Arial", 18), justify="center", bd=2, relief="solid")
+        input_fields[row][col].grid(row=row, column=col, padx=5, pady=5)
+
+        # Setăm culoarea de fundal pentru fiecare sub-grilă 3x3
+        input_fields[row][col].config(bg=sub_grid_colors[row][col])
+
+# Adăugarea bordurilor între sub-grile
+for i in range(1, 9):
+    if i % 3 == 0:
+        root.grid_rowconfigure(i, weight=1)
+        root.grid_columnconfigure(i, weight=1)
+
+# Buton pentru a rezolva Sudoku-ul
+rezolva_button = tk.Button(root, text="Rezolvă Sudoku", font=("Arial", 14), command=actualizeaza_sudoku)
+rezolva_button.grid(row=9, column=0, columnspan=9)
+
+# Rulare interfață grafică
 root.mainloop()
