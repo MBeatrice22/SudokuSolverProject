@@ -135,3 +135,5 @@ rezolva_button.grid(row=9, column=0, columnspan=9)
 
 # Rulare interfață grafică
 root.mainloop()
+
+
