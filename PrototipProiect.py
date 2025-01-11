@@ -1,20 +1,20 @@
-import tkinter as tk
-from tkinter import messagebox
+import tkinter as tk #bibliotecă necesară pentru a crea interfața grafică
+from tkinter import messagebox #bibliotecă necesară pentru a afișa mesaje de eroare
 
 
 # Funcție pentru a verifica dacă este posibil să pui un număr într-o celulă
 def este_valid(sudoku, row, col, num):
-    # Verifică pe rând
+    # Verifică dacă numărul există deja pe rând
     for i in range(9):
         if sudoku[row][i] == num:
             return False
 
-    # Verifică pe coloană
+    # Verifică dacă numărul există deja pe coloană
     for i in range(9):
         if sudoku[i][col] == num:
             return False
 
-    # Verifică în sub-grila 3x3
+    # Verifică dacă numărul există deja în sub-grila 3x3
     start_row, start_col = (row // 3) * 3, (col // 3) * 3
     for i in range(3):
         for j in range(3):
@@ -24,7 +24,7 @@ def este_valid(sudoku, row, col, num):
     return True
 
 
-# Funcție pentru a rezolva Sudoku-ul folosind backtracking
+# Funcție pentru a rezolva Sudoku-ul folosind backtracking(un număr nu poate fi plasat, funcția revine la pasul anterior și încearcă o altă valoare)
 def rezolva_sudoku(sudoku):
     for row in range(9):
         for col in range(9):
@@ -39,6 +39,39 @@ def rezolva_sudoku(sudoku):
     return True
 
 
+# Funcție pentru a verifica dacă există erori în Sudoku (duplicate pe linii, coloane sau sub-grile)
+#Se creează o listă linie/coloană/sub-grilă care conține toate numerele de pe acea linie, ignorând valorile 0 (care reprezintă celulele goale).
+#Dacă lungimea listei este diferită de lungimea setului de elemente din acea listă, înseamnă că există duplicate
+#(deoarece un set nu permite valori duplicate).
+def verifica_eroare():
+    erori = []
+
+    # Verificăm pentru duplicate pe fiecare linie
+    for row in range(9):
+        linie = [sudoku[row][col] for col in range(9) if sudoku[row][col] != 0]
+        if len(linie) != len(set(linie)):  # Dacă există duplicate
+            erori.append(f"Există duplicate pe linia {row + 1}")
+
+    # Verificăm pentru duplicate pe fiecare coloană
+    for col in range(9):
+        coloana = [sudoku[row][col] for row in range(9) if sudoku[row][col] != 0]
+        if len(coloana) != len(set(coloana)):  # Dacă există duplicate
+            erori.append(f"Există duplicate pe coloana {col + 1}")
+
+    # Verificăm pentru duplicate în fiecare sub-grilă 3x3
+    for start_row in range(0, 9, 3):
+        for start_col in range(0, 9, 3):
+            subgrid = []
+            for i in range(3):
+                for j in range(3):
+                    subgrid.append(sudoku[start_row + i][start_col + j])
+            subgrid_fara_zero = [x for x in subgrid if x != 0]
+            if len(subgrid_fara_zero) != len(set(subgrid_fara_zero)):  # Dacă există duplicate
+                erori.append(f"Există duplicate în careul ({start_row // 3 + 1}, {start_col // 3 + 1})")
+
+    return erori
+
+
 # Funcție pentru a actualiza Sudoku-ul cu valorile introduse de utilizator
 def actualizeaza_sudoku():
     global sudoku
@@ -46,12 +79,24 @@ def actualizeaza_sudoku():
         for row in range(9):
             for col in range(9):
                 val = input_fields[row][col].get()
+
+                # Validăm că valoarea introdusă este un număr între 1 și 9
                 if val:
+                    if not val.isdigit() or int(val) < 1 or int(val) > 9:
+                        messagebox.showerror("Eroare", "Introduceți doar cifre între 1 și 9.")
+                        return
                     sudoku[row][col] = int(val)
                 else:
                     sudoku[row][col] = 0
     except ValueError:
         messagebox.showerror("Eroare", "Introduceți doar cifre între 1 și 9.")
+        return
+
+    # Verifică erorile înainte de a rezolva Sudoku-ul
+    erori = verifica_eroare()
+    if erori:
+        # Afișăm erorile într-un singur mesaj
+        messagebox.showerror("Eroare", "\n".join(erori))
         return
 
     # Rezolvă Sudoku-ul
@@ -66,30 +111,32 @@ def actualizeaza_campuri():
     for row in range(9):
         for col in range(9):
             if sudoku[row][col] != 0:
-                input_fields[row][col].delete(0, tk.END)
-                input_fields[row][col].insert(0, str(sudoku[row][col]))
+                input_fields[row][col].delete(0, tk.END) #ștergem orice valoare introdusă în câmp
+                input_fields[row][col].insert(0, str(sudoku[row][col])) #introducem valoarea din sudoku
             else:
                 input_fields[row][col].delete(0, tk.END)
+
+
+# Funcție pentru a reseta Sudoku-ul(se setează cu 0 toate valorile)
+def reseteaza_sudoku():
+    global sudoku
+    # Resetăm matricea sudoku la starea inițială (cu 0 pentru fiecare celulă)
+    sudoku = [[0 for _ in range(9)] for _ in range(9)]
+
+    # Ștergem valorile din câmpurile de input
+    for row in range(9):
+        for col in range(9):
+            input_fields[row][col].delete(0, tk.END)
 
 
 # Crearea ferestrei principale
 root = tk.Tk()
 root.title("Sudoku")
 
-# Sudoku-ul inițial (poți schimba acest puzzle cu altul)
-sudoku = [
-    [5, 3, 0, 0, 7, 0, 0, 0, 0],
-    [6, 0, 0, 1, 9, 5, 0, 0, 0],
-    [0, 9, 8, 0, 0, 0, 0, 6, 0],
-    [8, 0, 0, 0, 6, 0, 0, 0, 3],
-    [4, 0, 0, 8, 0, 3, 0, 0, 1],
-    [7, 0, 0, 0, 2, 0, 0, 0, 6],
-    [0, 6, 0, 0, 0, 0, 2, 8, 0],
-    [0, 0, 0, 4, 1, 9, 0, 0, 5],
-    [0, 0, 0, 0, 8, 0, 0, 7, 9]
-]
+# Inițializarea unui careu de sudoku(o matrice de 9/9) cu toate valorile 0
+sudoku = [[0 for _ in range(9)] for _ in range(9)]
 
-# Crearea câmpurilor de input pentru Sudoku
+# Crearea câmpurilor de input pentru Sudoku(se creează o matrice de 9/9)
 input_fields = [[None for _ in range(9)] for _ in range(9)]
 
 # Definirea culorilor pentru sub-grilele 3x3
@@ -129,11 +176,14 @@ for i in range(1, 9):
         root.grid_rowconfigure(i, weight=1)
         root.grid_columnconfigure(i, weight=1)
 
+# Se creează butoanele care execută funcțiile respective atunci când sunt apăsate
 # Buton pentru a rezolva Sudoku-ul
 rezolva_button = tk.Button(root, text="Rezolvă Sudoku", font=("Arial", 14), command=actualizeaza_sudoku)
 rezolva_button.grid(row=9, column=0, columnspan=9)
 
+# Buton pentru a reseta Sudoku-ul
+reset_button = tk.Button(root, text="Resetează Sudoku", font=("Arial", 14), command=reseteaza_sudoku)
+reset_button.grid(row=10, column=0, columnspan=9)
+
 # Rulare interfață grafică
 root.mainloop()
-
-
