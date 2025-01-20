@@ -137,7 +137,7 @@ root.title("Sudoku")
 # Încarcă și afișează imaginea
 image_path = "sudokuLogo.png"  # Calea către imaginea ta
 image = Image.open(image_path)
-image = image.resize((300, 300))  # Redimensionează imaginea pentru a se potrivi în fereastră
+image = image.resize((250, 250))  # Redimensionează imaginea pentru a se potrivi în fereastră
 photo = ImageTk.PhotoImage(image)
 
 # Plasează imaginea într-un widget Label
