@@ -1,7 +1,7 @@
 import tkinter as tk  # bibliotecă necesară pentru a crea interfața grafică
 from tkinter import messagebox  # bibliotecă necesară pentru a afișa mesaje de eroare
 from PIL import Image, ImageTk  # biblioteca Pillow pentru a manipula imagini
-
+import random
 
 # Funcție pentru a verifica dacă este posibil să pui un număr într-o celulă
 def este_valid(sudoku, row, col, num):
@@ -25,7 +25,7 @@ def este_valid(sudoku, row, col, num):
     return True
 
 
-# Funcție pentru a rezolva Sudoku-ul folosind backtracking(un număr nu poate fi plasat, funcția revine la pasul anterior și încearcă o altă valoare)
+# Funcție pentru a rezolva Sudoku-ul folosind backtracking
 def rezolva_sudoku(sudoku):
     for row in range(9):
         for col in range(9):
@@ -40,10 +40,7 @@ def rezolva_sudoku(sudoku):
     return True
 
 
-# Funcție pentru a verifica dacă există erori în Sudoku (duplicate pe linii, coloane sau sub-grile)
-#Se creează o listă linie/coloană/sub-grilă care conține toate numerele de pe acea linie, ignorând valorile 0 (care reprezintă celulele goale).
-#Dacă lungimea listei este diferită de lungimea setului de elemente din acea listă, înseamnă că există duplicate
-#(deoarece un set nu permite valori duplicate).
+# Funcție pentru a verifica dacă există erori în Sudoku
 def verifica_eroare():
     erori = []
 
@@ -112,22 +109,36 @@ def actualizeaza_campuri():
     for row in range(9):
         for col in range(9):
             if sudoku[row][col] != 0:
-                input_fields[row][col].delete(0, tk.END) #ștergem orice valoare introdusă în câmp
-                input_fields[row][col].insert(0, str(sudoku[row][col])) #introducem valoarea din sudoku
+                input_fields[row][col].delete(0, tk.END)
+                input_fields[row][col].insert(0, str(sudoku[row][col]))
             else:
                 input_fields[row][col].delete(0, tk.END)
 
 
-# Funcție pentru a reseta Sudoku-ul(se setează cu 0 toate valorile)
+# Funcție pentru a reseta Sudoku-ul
 def reseteaza_sudoku():
     global sudoku
-    # Resetăm matricea sudoku la starea inițială (cu 0 pentru fiecare celulă)
     sudoku = [[0 for _ in range(9)] for _ in range(9)]
 
-    # Ștergem valorile din câmpurile de input
     for row in range(9):
         for col in range(9):
             input_fields[row][col].delete(0, tk.END)
+
+
+# Funcție pentru a genera câteva numere aleatorii în Sudoku
+def genereaza_numere_random():
+    global sudoku
+    numar_de_numere = random.randint(10, 20)
+
+    for _ in range(numar_de_numere):
+        row = random.randint(0, 8)
+        col = random.randint(0, 8)
+        num = random.randint(1, 9)
+
+        if sudoku[row][col] == 0 and este_valid(sudoku, row, col, num):
+            sudoku[row][col] = num
+
+    actualizeaza_campuri()
 
 
 # Crearea ferestrei principale
@@ -135,41 +146,31 @@ root = tk.Tk()
 root.title("Sudoku")
 
 # Încarcă și afișează imaginea
-image_path = "sudokuLogo.png"  # Calea către imaginea ta
+image_path = "sudokuLogo.png"
 image = Image.open(image_path)
-image = image.resize((250, 250))  # Redimensionează imaginea pentru a se potrivi în fereastră
+image = image.resize((250, 250))
 photo = ImageTk.PhotoImage(image)
 
-# Plasează imaginea într-un widget Label
 label_image = tk.Label(root, image=photo)
-label_image.grid(row=0, column=0, columnspan=9, pady=10)  # Afișează imaginea deasupra grilei Sudoku
+label_image.grid(row=0, column=0, columnspan=9, pady=10)
 
-# Inițializarea unui careu de sudoku(o matrice de 9/9) cu toate valorile 0
+# Inițializarea unui careu de sudoku cu toate valorile 0
 sudoku = [[0 for _ in range(9)] for _ in range(9)]
 
-# Crearea câmpurilor de input pentru Sudoku(se creează o matrice de 9/9)
+# Crearea câmpurilor de input pentru Sudoku
 input_fields = [[None for _ in range(9)] for _ in range(9)]
 
 # Definirea culorilor pentru sub-grilele 3x3
 sub_grid_colors = [
-    ['lightblue', 'lightblue', 'lightblue', 'lightgreen', 'lightgreen', 'lightgreen', 'lightyellow', 'lightyellow',
-     'lightyellow'],
-    ['lightblue', 'lightblue', 'lightblue', 'lightgreen', 'lightgreen', 'lightgreen', 'lightyellow', 'lightyellow',
-     'lightyellow'],
-    ['lightblue', 'lightblue', 'lightblue', 'lightgreen', 'lightgreen', 'lightgreen', 'lightyellow', 'lightyellow',
-     'lightyellow'],
-    ['lightpink', 'lightpink', 'lightpink', 'lightgray', 'lightgray', 'lightgray', 'lightcyan', 'lightcyan',
-     'lightcyan'],
-    ['lightpink', 'lightpink', 'lightpink', 'lightgray', 'lightgray', 'lightgray', 'lightcyan', 'lightcyan',
-     'lightcyan'],
-    ['lightpink', 'lightpink', 'lightpink', 'lightgray', 'lightgray', 'lightgray', 'lightcyan', 'lightcyan',
-     'lightcyan'],
-    ['lightcoral', 'lightcoral', 'lightcoral', 'lightblue', 'lightblue', 'lightblue', 'lightgreen', 'lightgreen',
-     'lightgreen'],
-    ['lightcoral', 'lightcoral', 'lightcoral', 'lightblue', 'lightblue', 'lightblue', 'lightgreen', 'lightgreen',
-     'lightgreen'],
-    ['lightcoral', 'lightcoral', 'lightcoral', 'lightblue', 'lightblue', 'lightblue', 'lightgreen', 'lightgreen',
-     'lightgreen']
+    ['lightblue', 'lightblue', 'lightblue', 'lightgreen', 'lightgreen', 'lightgreen', 'lightyellow', 'lightyellow', 'lightyellow'],
+    ['lightblue', 'lightblue', 'lightblue', 'lightgreen', 'lightgreen', 'lightgreen', 'lightyellow', 'lightyellow', 'lightyellow'],
+    ['lightblue', 'lightblue', 'lightblue', 'lightgreen', 'lightgreen', 'lightgreen', 'lightyellow', 'lightyellow', 'lightyellow'],
+    ['lightpink', 'lightpink', 'lightpink', 'lightgray', 'lightgray', 'lightgray', 'lightcyan', 'lightcyan', 'lightcyan'],
+    ['lightpink', 'lightpink', 'lightpink', 'lightgray', 'lightgray', 'lightgray', 'lightcyan', 'lightcyan', 'lightcyan'],
+    ['lightpink', 'lightpink', 'lightpink', 'lightgray', 'lightgray', 'lightgray', 'lightcyan', 'lightcyan', 'lightcyan'],
+    ['lightcoral', 'lightcoral', 'lightcoral', 'lightblue', 'lightblue', 'lightblue', 'lightgreen', 'lightgreen', 'lightgreen'],
+    ['lightcoral', 'lightcoral', 'lightcoral', 'lightblue', 'lightblue', 'lightblue', 'lightgreen', 'lightgreen', 'lightgreen'],
+    ['lightcoral', 'lightcoral', 'lightcoral', 'lightblue', 'lightblue', 'lightblue', 'lightgreen', 'lightgreen', 'lightgreen']
 ]
 
 # Crearea câmpurilor de input și setarea bordurilor și culorilor pentru sub-grilele de 3x3
@@ -177,17 +178,8 @@ for row in range(9):
     for col in range(9):
         input_fields[row][col] = tk.Entry(root, width=5, font=("Arial", 18), justify="center", bd=2, relief="solid")
         input_fields[row][col].grid(row=row + 1, column=col, padx=5, pady=5)
-
-        # Setăm culoarea de fundal pentru fiecare sub-grilă 3x3
         input_fields[row][col].config(bg=sub_grid_colors[row][col])
 
-# Adăugarea bordurilor între sub-grile
-for i in range(1, 9):
-    if i % 3 == 0:
-        root.grid_rowconfigure(i, weight=1)
-        root.grid_columnconfigure(i, weight=1)
-
-# Se creează butoanele care execută funcțiile respective atunci când sunt apăsate
 # Buton pentru a rezolva Sudoku-ul
 rezolva_button = tk.Button(root, text="Rezolvă Sudoku", font=("Arial", 14), command=actualizeaza_sudoku)
 rezolva_button.grid(row=10, column=0, columnspan=9)
@@ -195,6 +187,10 @@ rezolva_button.grid(row=10, column=0, columnspan=9)
 # Buton pentru a reseta Sudoku-ul
 reset_button = tk.Button(root, text="Resetează Sudoku", font=("Arial", 14), command=reseteaza_sudoku)
 reset_button.grid(row=11, column=0, columnspan=9)
+
+# Buton pentru a genera numere aleatorii
+genereaza_random_button = tk.Button(root, text="Generează numere aleatorii", font=("Arial", 14), command=genereaza_numere_random)
+genereaza_random_button.grid(row=12, column=0, columnspan=9)
 
 # Rulare interfață grafică
 root.mainloop()
