@@ -1,7 +1,8 @@
-from DataLoader import load_sales_data, clean_data
-from DataAnalisys import most_sold_products_per_month, total_revenue_per_product, filter_sales_by_date, average_monthly_revenue
-from DataSimulation import simulate_sales
-from Visualization import plot_most_sold_products, plot_total_revenue, plot_average_monthly_revenue
+from PythonCourse.Labs.L11.Ex1.DataLoader import load_sales_data, clean_data
+from PythonCourse.Labs.L11.Ex1.DataAnalisys import most_sold_products_per_month, total_revenue_per_product, \
+    average_monthly_revenue
+from PythonCourse.Labs.L11.Ex1.DataSimulation import simulate_sales
+from PythonCourse.Labs.L11.Ex1.Visualization import plot_most_sold_products, plot_total_revenue, plot_average_monthly_revenue
 
 def main():
     # Încarcă și curăță datele
